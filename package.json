@@ -2,21 +2,24 @@
   "name": "homebridge-defro",
   "displayName": "Homebridge Defro",
   "type": "module",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": false,
   "description": "Defro heatpump homebridge integration",
   "author": "Mateusz Tofilski",
   "license": "Apache-2.0",
-  "homepage": "https://github.com/USERNAME/GITHUB_PROJECT_NAME#readme",
+  "homepage": "https://github.com/tofilskimateusz/homebridge-defro#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME.git"
+    "url": "https://github.com/tofilskimateusz/homebridge-defro.git"
   },
   "bugs": {
-    "url": "https://github.com/USERNAME/GITHUB_PROJECT_NAME/issues"
+    "url": "https://github.com/tofilskimateusz/homebridge-defro/issues"
   },
   "keywords": [
-    "homebridge-plugin"
+    "homebridge-plugin",
+    "defro",
+    "Tech sterowniki",
+    "ST-5306"
   ],
   "main": "dist/index.js",
   "engines": {
