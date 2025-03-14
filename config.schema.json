@@ -1,0 +1,54 @@
+{
+  "pluginAlias": "HomebridgeDefro",
+  "pluginType": "platform",
+  "singular": true,
+  "strictValidation": false,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "apiUrl": {
+        "title": "Tech rest api url",
+        "type": "string",
+        "required": false,
+        "default": "https://emodul.eu/api/v1/"
+      },
+      "login": {
+        "title": "Login",
+        "type": "string",
+        "required": true
+      },
+      "password": {
+        "title": "Password",
+        "type": "string",
+        "required": true
+      },
+      "language": {
+        "title": "Language (en/pl/es etc.)",
+        "type": "string",
+        "required": false,
+        "default": "en"
+      },
+      "defaultCentralHeatingMode": {
+        "title": "Default central heating mode",
+        "type": "number",
+        "default": 2,
+        "oneOf": [
+          { "title": "Static temperature", "enum": [0] },
+          { "title": "Schedule", "enum": [1] },
+          { "title": "Heating curve", "enum": [2] }
+        ],
+        "required": true
+      },
+      "defaultUtilityWaterHeatingMode": {
+        "title": "Default utility water heating mode",
+        "type": "number",
+        "default": 1,
+        "oneOf": [
+          { "title": "Static temperature", "enum": [0] },
+          { "title": "Schedule", "enum": [1] }
+        ],
+        "required": true
+      }
+    }
+  }
+}
