@@ -2,7 +2,7 @@
   "name": "homebridge-defro",
   "displayName": "Homebridge Defro",
   "type": "module",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": false,
   "description": "Defro heatpump homebridge integration",
   "author": "Mateusz Tofilski",
