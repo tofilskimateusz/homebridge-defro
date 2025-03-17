@@ -22,17 +22,10 @@ export class TemperatureSensor {
           const accessoryData = platform.getDataById(accessory.context.device.uuid);
           const accessoryValue = accessoryData.value / 10;
 
-          if (accessoryValue === 1) {
-            this.service.updateCharacteristic(
-              platform.Characteristic.CurrentTemperature,
-              accessoryValue,
-            );
-          } else {
-            this.service.updateCharacteristic(
-              platform.Characteristic.CurrentTemperature,
-              accessoryValue,
-            );
-          }
+          this.service.updateCharacteristic(
+            platform.Characteristic.CurrentTemperature,
+            accessoryValue,
+          );
         }, 10000);
   }
 }

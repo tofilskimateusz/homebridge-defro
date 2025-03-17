@@ -22,53 +22,53 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
   private translations: {[key: string]: any} = [];
 
   private allowedSensorIds: number[] = [
-    1720, //Styk dodatkowy
-    1719, //Pompa obiegowa 2
-    1718, //Pompa obiegowa 1
+    // 1720, //Styk dodatkowy
+    // 1719, //Pompa obiegowa 2
+    // 1718, //Pompa obiegowa 1
     1483, //Grzałka przepływowa
     1482, //Grzałka CWU
     1480, //Grzałka CO
     1479, //Grzałka tacy ociekowej
-    1478, //Zawór rewersyjny
-    1477, //Zawór trójdrogowy
-    1237, //Grzałka krateru
+    // 1478, //Zawór rewersyjny
+    // 1477, //Zawór trójdrogowy
+    // 1237, //Grzałka krateru
     1236, //Sprężarka
-    1235, //Ragulator 2
-    1234, //Regulator 1
-    1233, //Styk kontroli faz (NO/NC)
-    1232, //Styk cz. propanu (NO/NC)
-    1231, //Styk blokady wentylatora
-    1227, //Presostat wyskiego ciśnienia
-    1226, //Presostat niskiego ciśnienia
-    1186, //Delta aktywacji rozmrażania
-    1242, //Temperatura ssania
-    1243, //Temperatura gorącego gazu
-    1244, //Otwarcie zaworu
-    1246, //Niskie ciśnienie
-    1484, //Temperatura odparowania
-    1537, //Przegrzanie
-    1575, //Przechłodzenie
+    // 1235, //Ragulator 2
+    // 1234, //Regulator 1
+    // 1233, //Styk kontroli faz (NO/NC)
+    // 1232, //Styk cz. propanu (NO/NC)
+    // 1231, //Styk blokady wentylatora
+    // 1227, //Presostat wyskiego ciśnienia
+    // 1226, //Presostat niskiego ciśnienia
+    // 1186, //Delta aktywacji rozmrażania
+    // 1242, //Temperatura ssania
+    // 1243, //Temperatura gorącego gazu
+    // 1244, //Otwarcie zaworu
+    // 1246, //Niskie ciśnienie
+    // 1484, //Temperatura odparowania
+    // 1537, //Przegrzanie
+    // 1575, //Przechłodzenie
     1691, //Czujnik pogodowy
-    1716, //Czujnik zaworu
-    1717, //Zawór mieszający
+    // 1716, //Czujnik zaworu
+    // 1717, //Zawór mieszający
     12000, //Temp. górna CO
     12001, //Temp. dolna CO
     12002, //Temperatura C.W.U.
     12003, //Temperatura zewnętrzna
-    12004, //Temp. parownika
-    12006, //Wysokie ciśnienie
-    12007, //Temperatura skraplania
-    12008, //Temp. dochłodz. cieczy
+    // 12004, //Temp. parownika
+    // 12006, //Wysokie ciśnienie
+    // 12007, //Temperatura skraplania
+    // 12008, //Temp. dochłodz. cieczy
     12009, //Temperatura zasilania
     12010, //Temperatura powrotu
     12011, //Temp. przepływomierza
-    12012, //Temp. krateru sprężarki
+    // 12012, //Temp. krateru sprężarki
     1240,//Pompa PWM
     1241, //Wentylator
     12013, //Przepływ
-    1584, //Moc grzewcza
-    1644, //Moc chłodnicza
-    1645, //Moc elektryczna
+    // 1584, //Moc grzewcza
+    // 1644, //Moc chłodnicza
+    // 1645, //Moc elektryczna
   ];
 
   private allowedControlIds: number[] = [
@@ -101,17 +101,26 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
 
     this.api.on('didFinishLaunching', () => {
       log.debug('Executed didFinishLaunching callback');
+      this.authenticate().then(() => {
+        this.getApiData().then(() =>
+          this.discoverDevices(),
+        );
+      });
 
-      this.getDefroData(true);
-
+      //re-authenticate every 1hour
       setInterval(() => {
-        this.getDefroData(false);
-      }, 30 * 60000); //refresh login after 30min
+        this.authenticate();
+      }, 60 * 60000);
+
+      //get up-to-date data from API
+      setInterval(() => {
+        this.getApiData();
+      }, 60000);
     });
   }
 
-  getDefroData(firstRun: boolean) {
-    this.axiosInstance.post('authentication', {
+  authenticate() {
+    return this.axiosInstance.post('authentication', {
       username: this.config.login,
       password: this.config.password,
     }).then((response: AxiosResponse<AuthenticationResponse>) => {
@@ -128,19 +137,13 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
       this.axiosInstance.get('i18n/' + this.config.language).then((translationResponse: AxiosResponse) => {
         this.log.debug('Got translations');
         this.translations = translationResponse.data.data;
-        this.getApiData(firstRun);
-
-        //get data from API every 1minute
-        setInterval(() => {
-          this.getApiData(false);
-        }, 60000);
       });
     });
   }
   
-  async getApiData(isFirstRun: boolean) {
+  getApiData() {
     let requestsHandled = 0;
-    this.axiosInstance.get(`users/${this.userId}/modules`).then((response: AxiosResponse) => {
+    return this.axiosInstance.get(`users/${this.userId}/modules`).then((response: AxiosResponse) => {
       for (const module of response.data) {
         this.moduleId = module.udid;
 
@@ -229,18 +232,6 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
           });
       }
     });
-
-    await new Promise<void>(resolve => {
-      const checkRequests = setInterval(() => {
-        if (requestsHandled === 2) {
-          clearInterval(checkRequests);
-          resolve();
-          if (isFirstRun) {
-            this.discoverDevices();
-          }
-        }
-      }, 1000);
-    });
   }
 
   configureAccessory(accessory: PlatformAccessory) {
@@ -316,6 +307,7 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
               accessoryValue,
               existingAccessory,
             );
+            this.discoveredCacheUUIDs.push(optionUuid);
           }
         } else {
           const accessory = this.accessories.get(uuid);
@@ -335,13 +327,6 @@ export class ExampleHomebridgePlatform implements DynamicPlatformPlugin {
         this.discoveredCacheUUIDs.push(uuid);
       }
     });
-
-    // for (const [uuid, accessory] of this.accessories) {
-    //   if (!this.discoveredCacheUUIDs.includes(uuid)) {
-    //     this.log.info('Removing existing accessory from cache:', accessory.displayName);
-    //     this.api.unregisterPlatformAccessories(PLUGIN_NAME, PLATFORM_NAME, [accessory]);
-    //   }
-    // }
   }
 
   getElementName(element: any) {
